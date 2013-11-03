@@ -183,10 +183,10 @@ enyo.kind({
 									//]},
 									{content: "Facebook", name: "shareFB"},
 									//{classes: "onyx-menu-divider"},
-									{content: "App.net"},
-									{content: "G+"},
-									{content: "Instapaper"}
-									//{content: "ReadItLater", active: false},
+									//{content: "App.net"},
+									//{content: "G+"},
+									{content: "Instapaper"},
+									{content: "ReadOnTouch"}
 								]}
 							]},							
 							//{style: "width: 5px"},
@@ -351,7 +351,7 @@ enyo.kind({
 		//gblBB10 = true;
 		
 		//Beta Laufzeit bis 12.10.2013
-		BetaDate = "20131012"; 
+		BetaDate = "20201012"; 
 		jetzt = new Date();
 		Tag = jetzt.getDate();
 		// bei einstelligem Wert Null voranstellen
@@ -361,8 +361,8 @@ enyo.kind({
 		Monat  = ((Monat < 10) ? "0" + Monat : Monat);
 		Jahr = jetzt.getYear() + 1900;
 		Datum = Jahr + Monat + Tag;
-		if (Datum > BetaDate){
-			console.log("BETA abgelaufen");
+		if (false && Datum > BetaDate){
+			console.log("BETA abgelaufen - " + Datum + " > " + BetaDate);
 			window.close();
 		}
 		
@@ -1489,6 +1489,33 @@ enyo.kind({
 				request.response(function() {});
 				request.go();				
 				//TODO Get Response!
+				break;
+			case "ReadOnTouch":			
+				if (PalmServiceBridge) {
+					if (!this.bridge) {
+						this.bridge = new PalmServiceBridge();
+						this.bridge.onservicecallback = function(result) {
+							console.error("ReadOnTouch Launch came back: " + JSON.stringify(result));
+						};
+					}
+					if (this.bridge) {
+						var readontouchappids = ['com.sven-ziegler.readontouch', 'com.sven-ziegler.readontouch-phone'], i;
+						for (i = 0; i < readontouchappids.length; i += 1) {
+							var params = {
+								id: readontouchappids[i],
+								params: {
+									action: "addLink",
+									title: ShareText,
+									url: ShareUrl
+								}
+							};
+							this.bridge.call("palm://com.palm.applicationManager/open", JSON.stringify(params));
+							console.error("Called " + readontouchappids[i]);
+						}
+					} else {
+						console.error("No service bridge created??");
+					}
+				}
 				break;
 		};
 
